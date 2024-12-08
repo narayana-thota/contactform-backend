@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded form data
 app.use(cors()); // Enable CORS
 
 // MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/narayana', {
+mongoose.connect('mongodb://0.0.0.0:27017/narayana', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
