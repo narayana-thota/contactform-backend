@@ -23,7 +23,7 @@ exec('mongod --dbpath /data/db --bind_ip_all', (error, stdout, stderr) => {
 });
 
 // MongoDB connection
-const mongoURI = 'mongodb://127.0.0.1:27017/narayana'; // Local MongoDB URI
+const mongoURI = 'mongodb://0.0.0.0:27017/narayana'; // Local MongoDB URI
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
