@@ -19,25 +19,12 @@ app.use(cors());
 console.log('MONGO_URI:', process.env.MONGO_URI);
 
 // MongoDB connection
-<<<<<<< HEAD
-const mongoURI = process.env.MONGO_URI;
-mongoose
-  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB Atlas'))
+const mongoURI = process.env.MONGO_URI || 'mongodb://0.0.0.0:27017/narayana'; // Use environment variable or default to local MongoDB URI
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB'))
   .catch((error) => {
     console.error('MongoDB connection error:', error);
     process.exit(1); // Exit the process if connection fails
-=======
-const mongoURI = 'mongodb://0.0.0.0:27017/narayana'; // Local MongoDB URI
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit if the database connection fails
->>>>>>> 6f0d1ce3c79d07d50a48afda372686a344957f98
   });
 
 // Define a schema and model
