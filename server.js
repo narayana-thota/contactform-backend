@@ -1,40 +1,34 @@
-const { exec } = require('child_process');
+// Load environment variables from .env file
+require('dotenv').config();
+
+// Import required packages
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-// App setup
+// Initialize Express app
 const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(express.json()); // Parse JSON requests
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded form data
-app.use(cors()); // Enable CORS
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
-// Start Local MongoDB
-exec('mongod --dbpath /data/db --bind_ip_all', (error, stdout, stderr) => {
-  if (error) {
-    console.error(`Error starting MongoDB: ${error.message}`);
-    process.exit(1); // Exit if MongoDB fails to start
-  }
-  if (stderr) console.error(`MongoDB stderr: ${stderr}`);
-  console.log(`MongoDB stdout: ${stdout}`);
-});
+// Debugging: Log the MongoDB URI
+console.log('MONGO_URI:', process.env.MONGO_URI);
 
 // MongoDB connection
-const mongoURI = 'mongodb://127.0.0.1:27017/narayana'; // Local MongoDB URI
-mongoose.connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit if the database connection fails
+const mongoURI = process.env.MONGO_URI;
+mongoose
+  .connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch((error) => {
+    console.error('MongoDB connection error:', error);
+    process.exit(1); // Exit the process if connection fails
   });
 
-// Define a schema
+// Define a schema and model
 const contactSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
@@ -42,10 +36,9 @@ const contactSchema = new mongoose.Schema({
   date: { type: Date, default: Date.now },
 });
 
-// Create a model
 const Contact = mongoose.model('Contact', contactSchema);
 
-// API to handle form submission
+// API route to handle contact form submissions
 app.post('/api/contact', async (req, res) => {
   const { name, email, message } = req.body;
 
@@ -63,12 +56,12 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// Health Check Endpoint (optional)
+// Optional health check endpoint
 app.get('/healthz', (req, res) => {
   res.status(200).send('OK');
 });
 
-// Start Express Server
+// Start the Express server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
