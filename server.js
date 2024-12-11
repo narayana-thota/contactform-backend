@@ -1,66 +1,58 @@
-// Load environment variables from .env file
 require('dotenv').config();
-
-// Import required packages
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const bodyParser = require('body-parser');
 
-// Initialize Express app
 const app = express();
-const port = process.env.PORT || 5000;
+const PORT = 5000;
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(bodyParser.json()); // Parse JSON bodies
+app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
-// Debugging: Log the MongoDB URI
-console.log('MONGO_URI:', process.env.MONGO_URI);
+// MongoDB Connection
+const uri = "mongodb+srv://narayanathota420:Narayana_420@cluster1.p4s9x.mongodb.net/project?retryWrites=true&w=majority&appName=Cluster1";
+mongoose.connect(uri)
+    .then(() => console.log("Connected to MongoDB Atlas!"))
+    .catch(err => console.error("MongoDB connection error:", err));
 
-// MongoDB connection
-const mongoURI = process.env.MONGO_URI || 'mongodb://0.0.0.0:27017/narayana'; // Use environment variable or default to local MongoDB URI
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
-    process.exit(1); // Exit the process if connection fails
-  });
-
-// Define a schema and model
+// Define Contact Schema and Model
 const contactSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  message: { type: String, required: true },
-  date: { type: Date, default: Date.now },
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    message: { type: String, required: true },
+    submittedAt: { type: Date, default: Date.now }
 });
 
 const Contact = mongoose.model('Contact', contactSchema);
 
-// API route to handle contact form submissions
-app.post('/api/contact', async (req, res) => {
-  const { name, email, message } = req.body;
-
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: 'All fields are required!' });
-  }
-
-  try {
-    const newContact = new Contact({ name, email, message });
-    await newContact.save();
-    res.status(201).json({ message: 'Contact form submitted successfully' });
-  } catch (error) {
-    console.error('Error saving to database:', error);
-    res.status(500).json({ error: 'Failed to submit contact form' });
-  }
+// Routes
+app.get('/', (req, res) => {
+    res.send("Welcome to the Contact Form API!");
 });
 
-// Optional health check endpoint
-app.get('/healthz', (req, res) => {
-  res.status(200).send('OK');
+// Endpoint to Handle Contact Form Submissions
+app.post('/submit', async (req, res) => {
+    try {
+        const { name, email, message } = req.body;
+
+        // Validate input
+        if (!name || !email || !message) {
+            return res.status(400).json({ error: "All fields are required." });
+        }
+
+        // Create and save contact form submission
+        const contact = new Contact({ name, email, message });
+        await contact.save();
+
+        res.status(201).json({ message: "Form submitted successfully!" });
+    } catch (err) {
+        console.error("Error saving contact form submission:", err);
+        res.status(500).json({ error: "An error occurred. Please try again later." });
+    }
 });
 
-// Start the Express server
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+// Start Server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
