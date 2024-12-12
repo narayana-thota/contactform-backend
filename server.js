@@ -11,14 +11,16 @@ app.use(bodyParser.json()); // Parse JSON bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // MongoDB Connection
-const uri = process.env.MONGODB_URI; // Use connection string from environment variable
+const connectDB = async () => {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log("Connected to MongoDB Atlas!");
+    } catch (err) {
+        console.error("MongoDB connection error:", err);
+    }
+};
 
-mongoose.connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-    .then(() => console.log("Connected to MongoDB Atlas!"))
-    .catch(err => console.error("MongoDB connection error:", err));
+connectDB();
 
 // Define Contact Schema and Model
 const contactSchema = new mongoose.Schema({
