@@ -1,18 +1,22 @@
-require('dotenv').config();
+require('dotenv').config(); // Load environment variables
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000; // Use PORT from .env or default to 5000
 
 // Middleware
 app.use(bodyParser.json()); // Parse JSON bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 // MongoDB Connection
-const uri = "mongodb+srv://narayanathota420:Narayana_420@cluster1.p4s9x.mongodb.net/project?retryWrites=true&w=majority&appName=Cluster1";
-mongoose.connect(uri)
+const uri = process.env.MONGODB_URI; // Use connection string from environment variable
+
+mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
     .then(() => console.log("Connected to MongoDB Atlas!"))
     .catch(err => console.error("MongoDB connection error:", err));
 
@@ -20,8 +24,9 @@ mongoose.connect(uri)
 const contactSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true },
+    phone: { type: String, required: true },
     message: { type: String, required: true },
-    submittedAt: { type: Date, default: Date.now }
+    submittedAt: { type: Date, default: Date.now },
 });
 
 const Contact = mongoose.model('Contact', contactSchema);
@@ -34,15 +39,15 @@ app.get('/', (req, res) => {
 // Endpoint to Handle Contact Form Submissions
 app.post('/submit', async (req, res) => {
     try {
-        const { name, email, message } = req.body;
+        const { name, email, phone, message } = req.body;
 
         // Validate input
-        if (!name || !email || !message) {
+        if (!name || !email || !phone || !message) {
             return res.status(400).json({ error: "All fields are required." });
         }
 
         // Create and save contact form submission
-        const contact = new Contact({ name, email, message });
+        const contact = new Contact({ name, email, phone, message });
         await contact.save();
 
         res.status(201).json({ message: "Form submitted successfully!" });
