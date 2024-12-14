@@ -10,7 +10,12 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+<<<<<<< HEAD
     "mongoose": "^8.9.0",
+=======
+    "mongodb": "^6.11.0",
+    "mongoose": "^8.8.4",
+>>>>>>> be6e2b744df1740a20b525ad7fb24ff739f81992
     "moongoose": "^0.0.1"
   },
   "keywords": [],
